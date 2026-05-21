@@ -1,5 +1,7 @@
 Forza Horizon 6 - Database Ecosystem
 
+![SQLITE](https://img.shields.shields.shields.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+
 ##  Sobre o Projeto
 Este projeto simula o ecossistema de banco de dados relacional para o backend do jogo **Forza Horizon 6**. O objetivo principal foi projetar, estruturar e povoar uma base de dados robusta contendo **20 marcas globais e 400 modelos de veículos**, aplicando padrões rigorosos de Engenharia de Dados, normalização e integridade referencial.
 
