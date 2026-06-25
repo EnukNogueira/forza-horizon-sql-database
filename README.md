@@ -1,43 +1,94 @@
-Forza Horizon 6 - Database Ecosystem
+# Forza Horizon — SQL Database Ecosystem
 
-##  Sobre o Projeto
-Este projeto simula o ecossistema de banco de dados relacional para o backend do jogo **Forza Horizon 6**. O objetivo principal foi projetar, estruturar e povoar uma base de dados robusta contendo **20 marcas globais e 400 modelos de veículos**, aplicando padrões rigorosos de Engenharia de Dados, normalização e integridade referencial.
-
----
-
-##  Influência Educacional & Fundamentos
-
-O sucesso na arquitetura deste ecossistema foi consolidado através do conhecimento adquirido em duas frentes principais:
-
-* **Alura (SQLite):** Proporcionou o domínio prático do ecossistema *serverless* do SQLite. Compreendi profundamente como o SGBD gerencia dados diretamente em um único arquivo em disco, além de aplicar de forma eficiente cláusulas de manipulação de dados (`DML`) seguras e o comportamento da restrição `AUTOINCREMENT`.
-* **Coursera (Databases and SQL for Data Science with Python):** Forneceu a base conceitual sobre modelagem relacional e Álgebra Relacional. Através desta formação, apliquei de forma estrita as **Restrições de Integridade** (Entidade, Referencial e Domínio), garantindo que as tabelas mantivessem consistência absoluta para suportar futuras análises analíticas de Data Science e Inteligência Artificial.
+Banco de dados relacional em SQLite modelando o ecossistema de veículos do Forza Horizon: 20 marcas globais e 400 modelos, com normalização completa, integridade referencial e queries analíticas.
 
 ---
 
-##  Pipeline de Desenvolvimento
+## Sobre o projeto
 
-### 1. Arquitetura do SGBD
-O **SQLite** foi selecionado pela sua portabilidade e eficiência em ambientes de microsserviços e aplicações locais. O desenvolvimento e validação dos scripts foram realizados utilizando a interface do **SQLite Online**.
+Este projeto simula o backend de banco de dados de um jogo de corrida open world. O objetivo foi projetar, estruturar e popular uma base relacional robusta aplicando padrões reais de Engenharia de Dados: modelagem normalizada, restrições de integridade, bulk insert e extração de inteligência via SQL.
 
-### 2. Modelagem Relacional e Estrutura (DDL)
-A base foi normalizada para mitigar a redundância de dados e anomalias de inserção, adotando uma cardinalidade de **1 para Muitos (1:N)**:
-* **Tabela Marcas (Tabela Pai):** Chave Primária (`PRIMARY KEY`) indexada para garantir a unicidade de cada fabricante do festival.
-* **Tabela Carros (Tabela Filho):** Chave Estrangeira (`FOREIGN KEY`) mapeada de forma explícita, criando uma restrição de integridade que impede registros de veículos órfãos e garante a consistência referencial do catálogo.
-* **Idempotência (Boas Práticas):** O script inicia com comandos `DROP TABLE IF EXISTS` ordenados inversamente ao nível de dependência (removendo a tabela filho antes da tabela pai), garantindo a reprodutibilidade infinita do ambiente a partir do zero.
+---
 
-### 3. Inserção Massiva de Dados (DML)
-Para povoar o ecossistema com uma volumetria realista (400 veículos distribuídos igualmente), utilizei a técnica de **Inserção em Lote (Bulk Insert)**.
-* **Otimização:** Essa abordagem reduz drasticamente a latência de I/O em disco e o *overhead* de abertura de transações (`COMMITs`), tornando a carga de dados exponencialmente mais rápida do que inserções isoladas.
-* **Ordem de Carga:** Respeitou-se estritamente o fluxo relacional: a tabela pai foi completamente populada antes da tabela filho receber as referências de ID.
+## Tecnologias utilizadas
 
-### 4. Extração de Inteligência de Negócio (DQL)
-A camada analítica do projeto faz uso de junções para reconstruir a informação normalizada na memória RAM no momento da consulta:
-* **INNER JOIN:** Acoplamento preciso baseado na igualdade dos identificadores de marca, permitindo cruzar dinamicamente cada modelo de carro com sua respectiva montadora e país de origem.
+- **SQLite** — SGBD serverless, portável e eficiente para ambientes locais e microsserviços
+- **SQL** — DDL, DML e DQL
+- **SQLite Online** — ambiente de desenvolvimento e validação dos scripts
+
+---
+
+## Estrutura do banco de dados
+
+O banco segue uma cardinalidade **1 para Muitos (1:N)**:
+
+```
+marcas (tabela pai)
+  └── carros (tabela filho)
+```
+
+### Tabela `marcas`
+
+| Coluna | Tipo | Restrição |
+|---|---|---|
+| id_marca | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| nome_marca | TEXT | NOT NULL |
+| pais_origem | TEXT | NOT NULL |
+
+### Tabela `carros`
+
+| Coluna | Tipo | Restrição |
+|---|---|---|
+| id_carro | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| nome_carro | TEXT | NOT NULL |
+| id_marca | INTEGER | FOREIGN KEY → marcas(id_marca) |
+
+---
+
+## Pipeline de desenvolvimento
+
+**1. Arquitetura (DDL)** — criação das tabelas com restrições de integridade de entidade, referencial e domínio. Script inicia com `DROP TABLE IF EXISTS` em ordem inversa de dependência para garantir idempotência total.
+
+**2. Carga de dados (DML)** — bulk insert de 20 marcas e 400 veículos distribuídos por fabricante. A tabela pai é populada integralmente antes da tabela filho receber as referências de ID.
+
+**3. Consultas analíticas (DQL)** — INNER JOIN para reconstruir em memória a relação normalizada entre veículos e marcas:
 
 ```sql
-SELECT 
+SELECT
     carros.nome_carro,
     marcas.nome_marca,
     marcas.pais_origem
 FROM carros
 INNER JOIN marcas ON carros.id_marca = marcas.id_marca;
+```
+
+---
+
+## Conceitos aplicados
+
+- Normalização relacional para eliminar redundância e anomalias de inserção
+- Restrições de integridade: entidade (PRIMARY KEY), referencial (FOREIGN KEY) e domínio (NOT NULL)
+- Idempotência via `DROP TABLE IF EXISTS` com ordem de dependência respeitada
+- Bulk insert para reduzir overhead de I/O e transações em cargas massivas
+
+---
+
+## Como executar
+
+O script `data_base_forza_horizon.sql` pode ser executado em qualquer cliente SQLite:
+
+```bash
+# Via terminal
+sqlite3 forza.db < data_base_forza_horizon.sql
+
+# Ou abra no SQLite Online: https://sqliteonline.com/
+```
+
+---
+
+## Autor
+
+**Enuk Nogueira** — Desenvolvedor focado em Engenharia de Dados e Automação de Processos
+
+[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/enuknogueira/)
+[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/EnukNogueira)
