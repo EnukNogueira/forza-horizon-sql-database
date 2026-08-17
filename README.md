@@ -1,57 +1,77 @@
-# Forza Horizon — SQL Database Ecosystem
+# Forza Horizon — Banco de Dados Relacional
 
-Banco de dados relacional em SQLite modelando o ecossistema de veículos do Forza Horizon: 20 marcas globais e 400 modelos, com normalização completa, integridade referencial e queries analíticas.
+Projeto de modelagem e implementação de um banco de dados relacional em SQLite para representar marcas e veículos do universo de Forza Horizon.
+
+O projeto foi desenvolvido para praticar conceitos de SQL, modelagem relacional, relacionamentos entre tabelas, integridade de dados e consultas utilizando JOIN.
 
 ---
 
 ## Sobre o projeto
 
-Este projeto simula o backend de banco de dados de um jogo de corrida open world. O objetivo foi projetar, estruturar e popular uma base relacional robusta aplicando padrões reais de Engenharia de Dados: modelagem normalizada, restrições de integridade, bulk insert e extração de inteligência via SQL.
+A proposta foi criar uma estrutura simples e organizada para armazenar informações sobre fabricantes e veículos.
+
+O banco possui duas tabelas relacionadas:
+
+```text
+marcas
+   |
+   | 1:N
+   |
+carros
+```
+
+Uma marca pode possuir vários carros, enquanto cada carro pertence a uma única marca.
+
+O projeto inclui a criação das tabelas, inserção dos dados e consultas para relacionar as informações armazenadas.
 
 ---
 
 ## Tecnologias utilizadas
 
-- **SQLite** — SGBD serverless, portável e eficiente para ambientes locais e microsserviços
-- **SQL** — DDL, DML e DQL
-- **SQLite Online** — ambiente de desenvolvimento e validação dos scripts
+- **SQLite** — banco de dados relacional
+- **SQL** — criação, inserção e consulta dos dados
+- **SQLite Online** — ambiente utilizado para desenvolvimento e testes
 
 ---
 
-## Estrutura do banco de dados
-
-O banco segue uma cardinalidade **1 para Muitos (1:N)**:
-
-```
-marcas (tabela pai)
-  └── carros (tabela filho)
-```
+## Estrutura do banco
 
 ### Tabela `marcas`
 
 | Coluna | Tipo | Restrição |
 |---|---|---|
-| id_marca | INTEGER | PRIMARY KEY AUTOINCREMENT |
-| nome_marca | TEXT | NOT NULL |
-| pais_origem | TEXT | NOT NULL |
+| `id_marca` | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| `nome_marca` | TEXT | NOT NULL |
+| `pais_origem` | TEXT | NOT NULL |
 
 ### Tabela `carros`
 
 | Coluna | Tipo | Restrição |
 |---|---|---|
-| id_carro | INTEGER | PRIMARY KEY AUTOINCREMENT |
-| nome_carro | TEXT | NOT NULL |
-| id_marca | INTEGER | FOREIGN KEY → marcas(id_marca) |
+| `id_carro` | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| `nome_carro` | TEXT | NOT NULL |
+| `id_marca` | INTEGER | FOREIGN KEY |
 
 ---
 
-## Pipeline de desenvolvimento
+## O que foi praticado
 
-**1. Arquitetura (DDL)** — criação das tabelas com restrições de integridade de entidade, referencial e domínio. Script inicia com `DROP TABLE IF EXISTS` em ordem inversa de dependência para garantir idempotência total.
+- [x] Criação de tabelas com SQL
+- [x] Chaves primárias
+- [x] Chaves estrangeiras
+- [x] Relacionamentos 1:N
+- [x] Restrições `NOT NULL`
+- [x] Inserção de dados
+- [x] Consultas com `SELECT`
+- [x] Utilização de `INNER JOIN`
+- [x] Organização de dados em tabelas relacionadas
+- [x] Normalização básica de dados
 
-**2. Carga de dados (DML)** — bulk insert de 20 marcas e 400 veículos distribuídos por fabricante. A tabela pai é populada integralmente antes da tabela filho receber as referências de ID.
+---
 
-**3. Consultas analíticas (DQL)** — INNER JOIN para reconstruir em memória a relação normalizada entre veículos e marcas:
+## Exemplo de consulta
+
+Uma das consultas utilizadas relaciona os veículos às respectivas marcas:
 
 ```sql
 SELECT
@@ -59,36 +79,56 @@ SELECT
     marcas.nome_marca,
     marcas.pais_origem
 FROM carros
-INNER JOIN marcas ON carros.id_marca = marcas.id_marca;
+INNER JOIN marcas
+    ON carros.id_marca = marcas.id_marca;
 ```
+
+O resultado permite visualizar o veículo, sua fabricante e o país de origem da marca em uma única consulta.
 
 ---
 
-## Conceitos aplicados
+## Estrutura do projeto
 
-- Normalização relacional para eliminar redundância e anomalias de inserção
-- Restrições de integridade: entidade (PRIMARY KEY), referencial (FOREIGN KEY) e domínio (NOT NULL)
-- Idempotência via `DROP TABLE IF EXISTS` com ordem de dependência respeitada
-- Bulk insert para reduzir overhead de I/O e transações em cargas massivas
+```text
+forza-horizon/
+├── data_base_forza_horizon.sql
+└── README.md
+```
 
 ---
 
 ## Como executar
 
-O script `data_base_forza_horizon.sql` pode ser executado em qualquer cliente SQLite:
+O arquivo `data_base_forza_horizon.sql` pode ser executado em qualquer ambiente compatível com SQLite.
+
+### Pelo terminal
 
 ```bash
-# Via terminal
 sqlite3 forza.db < data_base_forza_horizon.sql
-
-# Ou abra no SQLite Online: https://sqliteonline.com/
 ```
+
+### SQLite Online
+
+O script também pode ser executado diretamente no SQLite Online:
+
+https://sqliteonline.com/
+
+---
+
+## Objetivo do estudo
+
+Este projeto faz parte dos meus estudos de banco de dados e SQL.
+
+O objetivo foi colocar em prática conceitos fundamentais de bancos relacionais antes de avançar para consultas e projetos de análise de dados mais complexos.
 
 ---
 
 ## Autor
 
-**Enuk Nogueira** — Desenvolvedor focado em Engenharia de Dados e Automação de Processos
+**Enuk Nogueira**
+
+Estudante de Análise e Desenvolvimento de Sistemas pela PUCPR, com foco em Análise de Dados e Ciência de Dados.
 
 [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/enuknogueira/)
+
 [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/EnukNogueira)
